@@ -1,0 +1,44 @@
+# --- Security & Environment ---
+*.crt
+*.key
+*.keystore
+*.pem
+*.secret
+*.token
+.env
+.env.*
+
+# --- Build Artifacts ---
+target/
+build/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# --- Dependency Caches ---
+.mvn/
+.mvn/wrapper/maven-wrapper.jar
+.cache/
+
+# --- Logs ---
+*.log
+*.log.*
+logs/
+
+# --- IDE Files ---
+# IntelliJ
+.idea/
+*.iml
+# Eclipse
+.project
+.classpath
+.settings/
+.springBeans
+# VS Code
+.vscode/
+
+# --- Spring Boot Specific ---
+**/application-*.properties
+**/application-*.yml
