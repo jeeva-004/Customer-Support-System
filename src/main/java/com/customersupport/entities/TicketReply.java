@@ -15,6 +15,7 @@ public class TicketReply {
 
     private String message;
     private Timestamp createdAt;
+    private Timestamp updatedAt;
     @ManyToOne
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
