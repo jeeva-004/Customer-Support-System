@@ -40,6 +40,8 @@ public class UserService {
         oldUser.setEmail(newUser.getEmail());
         oldUser.setPassword(newUser.getPassword());
 
+        userRepository.save(oldUser);
+
         return "User Updated";
     }
 

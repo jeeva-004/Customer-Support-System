@@ -2,8 +2,10 @@ package com.customersupport.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.security.Timestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.persistence.Column;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -14,8 +16,11 @@ public class TicketReply {
     private Long id;
 
     private String message;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
     @ManyToOne
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;

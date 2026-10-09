@@ -3,8 +3,10 @@ package com.customersupport.entities;
 import com.customersupport.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.cglib.core.Local;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -18,5 +20,8 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-    private Timestamp createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at",updatable = false)
+    private LocalDateTime createdAt;
+
 }

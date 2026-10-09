@@ -5,8 +5,11 @@ import com.customersupport.enums.TicketStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import jakarta.persistence.Column;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,8 +26,11 @@ public class Ticket {
     private TicketStatus status;
     @Enumerated(EnumType.STRING)
     private TicketPriority priority;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    @CreationTimestamp
+    @Column(name = "created_at",updatable = false)
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private User customer;
