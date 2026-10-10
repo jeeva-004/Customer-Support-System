@@ -1,9 +1,10 @@
 package com.customersupport.services;
 
+import com.customersupport.dto.CategoryRequest;
+import com.customersupport.dto.CategoryResponse;
 import com.customersupport.entities.Category;
 import com.customersupport.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -15,31 +16,52 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<Category> getAll(){
+    // Entity to Response
 
-        return categoryRepository.findAll();
+    private CategoryResponse toResponse(Category c){
+        CategoryResponse response = new CategoryResponse();
+        response.setId(c.getId());
+        response.setTitle(c.getTitle());
+        response.setDescription(c.getDescription());
+        return response;
     }
 
-    public Category getById(Long id){
-        return categoryRepository.findById(id)
+    // DTO Request to Entity
+
+    private Category toCategory (CategoryRequest c){
+        Category category = new Category();
+        category.setTitle(c.getTitle());
+        category.setDescription(c.getDescription());
+        return category;
+    }
+
+    public List<CategoryResponse> getAll(){
+        return categoryRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public CategoryResponse getById(Long id){
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+
+        return toResponse(category);
     }
 
-    public String createCategory(Category c){
-        categoryRepository.save(c);
-
-        return "Category Added";
+    public CategoryResponse createCategory(CategoryRequest c){
+        Category category = toCategory(c);
+        Category savedCategory =  categoryRepository.save(category);
+        return toResponse(savedCategory);
     }
 
-    public String updateCategory(Category c, Long id){
+    public CategoryResponse updateCategory(CategoryRequest c, Long id){
 
-        Category oldCategory = categoryRepository.findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
-        oldCategory.setTitle(c.getTitle());
-        oldCategory.setDescription(c.getDescription());
-        categoryRepository.save(oldCategory);
+        category.setTitle(c.getTitle());
+        category.setDescription(c.getDescription());
 
-        return "Category Updated";
+        Category updatedCategory = categoryRepository.save(category);
+
+        return toResponse(updatedCategory);
     }
 
     public String deleteCategory(Long id){

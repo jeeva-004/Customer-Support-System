@@ -1,6 +1,9 @@
 package com.customersupport.services;
 
+import com.customersupport.dto.UserRequest;
+import com.customersupport.dto.UserResponse;
 import com.customersupport.entities.User;
+import com.customersupport.enums.Role;
 import com.customersupport.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,34 +18,57 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAll(){
-        return userRepository.findAll();
+    private UserResponse toResponse(User user){
+        UserResponse response = new UserResponse();
+
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setCreatedAt(user.getCreatedAt());
+
+        return response;
     }
 
-    public User getById(Long id){
-        return userRepository.findById(id)
+    private User toUser(UserRequest user){
+        User userEntity = new User();
+        userEntity.setName(user.getName());
+        userEntity.setPassword(user.getPassword());
+        userEntity.setEmail(user.getPassword());
+        userEntity.setRole(Role.valueOf(user.getRole().toUpperCase()));
+        return userEntity;
+    }
+
+    public List<UserResponse> getAll(){
+        return userRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public UserResponse getById(Long id){
+        User user = userRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+
+        return toResponse(user);
     }
 
-    public String createUser(User user){
-        userRepository.save(user);
-
-        return "User Added";
+    public UserResponse createUser(UserRequest user){
+        User userEntity = toUser(user);
+        userRepository.save(userEntity);
+        return  toResponse(userEntity);
     }
 
-    public String updateUser(User newUser, Long id){
+    public UserResponse updateUser(UserRequest newUser, Long id){
 
-        User oldUser = userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
 
-        oldUser.setName(newUser.getName());
-        oldUser.setRole(newUser.getRole());
-        oldUser.setEmail(newUser.getEmail());
-        oldUser.setPassword(newUser.getPassword());
+        user.setName(newUser.getName());
+        user.setRole(Role.valueOf(newUser.getRole().toUpperCase()));
+        user.setEmail(newUser.getEmail());
+        user.setPassword(newUser.getPassword());
 
-        userRepository.save(oldUser);
+        User updatedUser = userRepository.save(user);
 
-        return "User Updated";
+        return toResponse(updatedUser);
     }
 
     public String deleteUser(Long id){

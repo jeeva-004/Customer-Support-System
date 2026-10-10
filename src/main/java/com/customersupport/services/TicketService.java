@@ -1,12 +1,16 @@
 package com.customersupport.services;
 
+import com.customersupport.dto.TicketReplyResponse;
+import com.customersupport.dto.TicketRequest;
+import com.customersupport.dto.TicketResponse;
 import com.customersupport.entities.Category;
 import com.customersupport.entities.Ticket;
-import com.customersupport.entities.User;
+import com.customersupport.entities.TicketReply;
+import com.customersupport.enums.TicketPriority;
+import com.customersupport.enums.TicketStatus;
 import com.customersupport.repositories.CategoryRepository;
 import com.customersupport.repositories.TicketRepository;
 import com.customersupport.repositories.UserRepository;
-import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,107 +18,159 @@ import java.util.NoSuchElementException;
 
 @Service
 public class TicketService {
+
     private final TicketRepository ticketRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
     TicketService(TicketRepository ticketRepository,
-                CategoryRepository categoryRepository,
-                  UserRepository userRepository){
-        this.categoryRepository = categoryRepository;
+                  CategoryRepository categoryRepository,
+                  UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
-        this.userRepository = userRepository;
-    }
+        this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;    }
 
-    public List<Ticket> getAll(){
-        return ticketRepository.findAll();
-    }
+    // Entity to response
 
-    public Ticket getById(Long id){
-        return ticketRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record Not Found"));
-    }
+    private TicketResponse toResponse(Ticket ticket) {
+        TicketResponse response = new TicketResponse();
 
-    public String createTicket(Ticket ticket) {
+        response.setId(ticket.getId());
+        response.setTitle(ticket.getTitle());
+        response.setDescription(ticket.getDescription());
+        response.setStatus(ticket.getStatus().name());
+        response.setPriority(ticket.getPriority().name());
+        response.setCreatedAt(ticket.getCreatedAt());
+        response.setUpdatedAt(ticket.getUpdatedAt());
 
-        Category category = categoryRepository.findById(
-                ticket.getCategory().getId()
-        ).orElseThrow(() ->
-                new NoSuchElementException("Category not found")
+        response.setCustomerId(ticket.getCustomer().getId());
+
+        response.setAssignedAgentId(
+                ticket.getAssignedAgent() != null
+                        ? ticket.getAssignedAgent().getId()
+                        : null
         );
 
-        User customer = userRepository.findById(
-                ticket.getCustomer().getId()
-        ).orElseThrow(() ->
-                new NoSuchElementException("Customer not found")
+        response.setCategoryId(ticket.getCategory().getId());
+
+        response.setReplies(
+                ticket.getReplies() == null
+                        ? List.of()
+                        : ticket.getReplies().stream()
+                        .map(this::toReplyResponse)
+                        .toList()
         );
 
-        ticket.setCategory(category);
-        ticket.setCustomer(customer);
-
-        if (ticket.getAssignedAgent() != null) {
-            User agent = userRepository.findById(
-                    ticket.getAssignedAgent().getId()
-            ).orElseThrow(() ->
-                    new NoSuchElementException("Agent not found")
-            );
-
-            ticket.setAssignedAgent(agent);
-        }
-
-        ticketRepository.save(ticket);
-
-        return "Ticket Added";
+        return response;
     }
 
-    public String updateTicket(Ticket ticket, Long id) {
+    // TicketReply entity to response
 
-        Ticket t = ticketRepository.findById(id)
+    private TicketReplyResponse toReplyResponse(TicketReply ticketReply) {
+        TicketReplyResponse response = new TicketReplyResponse();
+
+        response.setId(ticketReply.getId());
+        response.setMessage(ticketReply.getMessage());
+        response.setCreatedAt(ticketReply.getCreatedAt());
+        response.setUpdatedAt(ticketReply.getUpdatedAt());
+        response.setTicketId(ticketReply.getTicket().getId());
+        response.setUserId(ticketReply.getUser().getId());
+
+        return response;
+    }
+
+    // Request to entity
+
+    private Ticket toTicket(TicketRequest ticketRequest) {
+        Ticket ticket = new Ticket();
+
+        ticket.setTitle(ticketRequest.getTitle());
+        ticket.setDescription(ticketRequest.getDescription());
+        ticket.setStatus(TicketStatus.valueOf(ticketRequest.getStatus().toUpperCase()));
+        ticket.setPriority(TicketPriority.valueOf(ticketRequest.getPriority().toUpperCase()));
+
+        ticket.setCustomer(
+                userRepository.getReferenceById(ticketRequest.getCustomerId())
+        );
+
+        ticket.setCategory(
+                categoryRepository.getReferenceById(ticketRequest.getCategoryId())
+        );
+
+        ticket.setAssignedAgent(userRepository.getReferenceById(ticketRequest.getAssignedAgentId()));
+
+        return ticket;
+    }
+
+    public List<TicketResponse> getAll() {
+        return ticketRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public TicketResponse getById(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() ->
-                        new NoSuchElementException("Ticket not found: " + id)
+                        new NoSuchElementException(
+                                "Record does't exist ID " + id
+                        )
                 );
 
-        t.setTitle(ticket.getTitle());
-        t.setDescription(ticket.getDescription());
-        t.setPriority(ticket.getPriority());
-        t.setStatus(ticket.getStatus());
-
-        if (ticket.getCategory() != null) {
-            Category category = categoryRepository.findById(
-                    ticket.getCategory().getId()
-            ).orElseThrow(() ->
-                    new NoSuchElementException("Category not found")
-            );
-
-            t.setCategory(category);
-        }
-
-        if (ticket.getCustomer() != null) {
-            User customer = userRepository.findById(
-                    ticket.getCustomer().getId()
-            ).orElseThrow(() ->
-                    new NoSuchElementException("Customer not found")
-            );
-
-            t.setCustomer(customer);
-        }
-
-        if (ticket.getAssignedAgent() != null) {
-            User agent = userRepository.findById(
-                    ticket.getAssignedAgent().getId()
-            ).orElseThrow(() ->
-                    new NoSuchElementException("Agent not found")
-            );
-
-            t.setAssignedAgent(agent);
-        }
-
-        ticketRepository.save(t);
-
-        return "Ticket Updated";
+        return toResponse(ticket);
     }
 
-    public String deleteTicket(Long id){
+    public TicketResponse createTicket(TicketRequest ticketRequest) {
+        Ticket ticket = toTicket(ticketRequest);
+
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        return toResponse(savedTicket);
+    }
+
+    public TicketResponse updateTicket(TicketRequest ticketRequest, Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() ->
+                        new NoSuchElementException(
+                                "Record does't exist ID " + id
+                        )
+                );
+
+        ticket.setTitle(ticketRequest.getTitle());
+        ticket.setDescription(ticketRequest.getDescription());
+        ticket.setStatus(TicketStatus.valueOf(ticketRequest.getStatus().toUpperCase()));
+        ticket.setPriority(TicketPriority.valueOf(ticketRequest.getPriority().toUpperCase()));
+
+        if (ticketRequest.getCustomerId() != null) {
+            ticket.setCustomer(
+                    userRepository.getReferenceById(
+                            ticketRequest.getCustomerId()
+                    )
+            );
+        }
+
+        if (ticketRequest.getCategoryId() != null) {
+            ticket.setCategory(
+                    categoryRepository.getReferenceById(
+                            ticketRequest.getCategoryId()
+                    )
+            );
+        }
+
+        if (ticketRequest.getAssignedAgentId() != null) {
+            ticket.setAssignedAgent(
+                    userRepository.getReferenceById(
+                            ticketRequest.getAssignedAgentId()
+                    )
+            );
+        }
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        return toResponse(updatedTicket);
+    }
+
+    public String deleteTicket(Long id) {
         ticketRepository.deleteById(id);
 
         return "Ticket Deleted";

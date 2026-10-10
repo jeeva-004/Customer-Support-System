@@ -1,5 +1,7 @@
 package com.customersupport.controllers;
 
+import com.customersupport.dto.TicketReplyRequest;
+import com.customersupport.dto.TicketReplyResponse;
 import com.customersupport.entities.TicketReply;
 import com.customersupport.services.TicketReplyService;
 import org.springframework.web.bind.annotation.*;
@@ -16,25 +18,24 @@ public class TicketReplyController {
     }
 
     @GetMapping
-    public List<TicketReply> getAll(){
+    public List<TicketReplyResponse> getAll(){
         return ticketReplyService.getAll();
     }
 
     @GetMapping("/{id}")
-    public TicketReply getById(@PathVariable Long id){
+    public TicketReplyResponse getById(@PathVariable Long id){
         return ticketReplyService.getById(id);
     }
 
     @PostMapping
-    public String createTicketReply(@RequestBody TicketReply ticketReply){
-        ticketReplyService.createTicketReply(ticketReply);
-        return "Ticket Reply created";
+    public TicketReplyResponse createTicketReply(@RequestBody TicketReplyRequest ticketReply){
+        return ticketReplyService.createTicketReply(ticketReply);
     }
 
     @PutMapping("/{id}")
-    public String updateTicketReply(@RequestBody TicketReply newTicketReply, @PathVariable Long id){
-        ticketReplyService.updateTicketReply(newTicketReply, id);
-        return "Ticket Reply Updated";
+    public TicketReplyResponse updateTicketReply(@RequestBody TicketReplyRequest newTicketReply, @PathVariable Long id){
+        return ticketReplyService.updateTicketReply(newTicketReply, id);
+
     }
 
     @DeleteMapping("/{id}")

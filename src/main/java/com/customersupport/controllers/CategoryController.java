@@ -1,5 +1,7 @@
 package com.customersupport.controllers;
 
+import com.customersupport.dto.CategoryRequest;
+import com.customersupport.dto.CategoryResponse;
 import com.customersupport.entities.Category;
 import com.customersupport.services.CategoryService;
 import org.springframework.web.bind.annotation.*;
@@ -16,25 +18,23 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<Category> getAll(){
+    public List<CategoryResponse> getAll(){
         return categoryService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Category getById(@PathVariable Long id){
+    public CategoryResponse getById(@PathVariable Long id){
         return categoryService.getById(id);
     }
 
     @PostMapping
-    public String createCategory(@RequestBody Category newCategory){
-        categoryService.createCategory(newCategory);
-        return "Category Created";
+    public CategoryResponse createCategory(@RequestBody CategoryRequest newCategory){
+        return categoryService.createCategory(newCategory);
     }
 
     @PutMapping("/{id}")
-    public String updateCategory(@RequestBody Category newCategory, @PathVariable Long id){
-        categoryService.updateCategory(newCategory, id);
-        return "Category Updated";
+    public CategoryResponse updateCategory(@RequestBody CategoryRequest newCategory, @PathVariable Long id){
+        return categoryService.updateCategory(newCategory, id);
     }
 
     @DeleteMapping("/{id}")

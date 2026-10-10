@@ -1,5 +1,7 @@
 package com.customersupport.controllers;
 
+import com.customersupport.dto.UserRequest;
+import com.customersupport.dto.UserResponse;
 import com.customersupport.entities.User;
 import com.customersupport.services.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -16,26 +18,23 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAll(){
+    public List<UserResponse> getAll(){
         return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id){
+    public UserResponse getById(@PathVariable Long id){
         return userService.getById(id);
     }
 
     @PostMapping
-    public String createUser(@RequestBody User user){
-        userService.createUser(user);
-        return "User Created";
+    public UserResponse createUser(@RequestBody UserRequest user){
+        return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public String updateUser(@RequestBody User newUser, @PathVariable Long id){
-        userService.updateUser(newUser, id);
-
-        return "User Updated";
+    public UserResponse updateUser(@RequestBody UserRequest newUser, @PathVariable Long id){
+        return userService.updateUser(newUser, id);
     }
 
     @DeleteMapping("/{id}")
