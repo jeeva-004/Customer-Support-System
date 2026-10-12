@@ -4,6 +4,7 @@ import com.customersupport.dto.CategoryRequest;
 import com.customersupport.dto.CategoryResponse;
 import com.customersupport.entities.Category;
 import com.customersupport.services.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,12 @@ public class CategoryController {
     }
 
     @PostMapping
-    public CategoryResponse createCategory(@RequestBody CategoryRequest newCategory){
+    public CategoryResponse createCategory(@Valid @RequestBody CategoryRequest newCategory){
         return categoryService.createCategory(newCategory);
     }
 
     @PutMapping("/{id}")
-    public CategoryResponse updateCategory(@RequestBody CategoryRequest newCategory, @PathVariable Long id){
+    public CategoryResponse updateCategory(@Valid @RequestBody CategoryRequest newCategory, @PathVariable Long id){
         return categoryService.updateCategory(newCategory, id);
     }
 

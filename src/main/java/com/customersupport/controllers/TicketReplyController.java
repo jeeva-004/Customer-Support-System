@@ -4,6 +4,7 @@ import com.customersupport.dto.TicketReplyRequest;
 import com.customersupport.dto.TicketReplyResponse;
 import com.customersupport.entities.TicketReply;
 import com.customersupport.services.TicketReplyService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,12 @@ public class TicketReplyController {
     }
 
     @PostMapping
-    public TicketReplyResponse createTicketReply(@RequestBody TicketReplyRequest ticketReply){
+    public TicketReplyResponse createTicketReply(@Valid @RequestBody TicketReplyRequest ticketReply){
         return ticketReplyService.createTicketReply(ticketReply);
     }
 
     @PutMapping("/{id}")
-    public TicketReplyResponse updateTicketReply(@RequestBody TicketReplyRequest newTicketReply, @PathVariable Long id){
+    public TicketReplyResponse updateTicketReply(@Valid @RequestBody TicketReplyRequest newTicketReply, @PathVariable Long id){
         return ticketReplyService.updateTicketReply(newTicketReply, id);
 
     }

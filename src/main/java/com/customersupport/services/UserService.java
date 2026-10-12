@@ -4,6 +4,7 @@ import com.customersupport.dto.UserRequest;
 import com.customersupport.dto.UserResponse;
 import com.customersupport.entities.User;
 import com.customersupport.enums.Role;
+import com.customersupport.exceptions.ResourceNotFoundException;
 import com.customersupport.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +46,7 @@ public class UserService {
 
     public UserResponse getById(Long id){
         User user = userRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("User Not Found with this id"+id));
 
         return toResponse(user);
     }
@@ -59,7 +60,7 @@ public class UserService {
     public UserResponse updateUser(UserRequest newUser, Long id){
 
         User user = userRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("User Not Found with this id"+id));
 
         user.setName(newUser.getName());
         user.setRole(Role.valueOf(newUser.getRole().toUpperCase()));

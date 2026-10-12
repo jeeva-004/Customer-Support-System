@@ -3,19 +3,17 @@ package com.customersupport.services;
 import com.customersupport.dto.TicketReplyResponse;
 import com.customersupport.dto.TicketRequest;
 import com.customersupport.dto.TicketResponse;
-import com.customersupport.entities.Category;
 import com.customersupport.entities.Ticket;
 import com.customersupport.entities.TicketReply;
 import com.customersupport.enums.TicketPriority;
 import com.customersupport.enums.TicketStatus;
+import com.customersupport.exceptions.ResourceNotFoundException;
 import com.customersupport.repositories.CategoryRepository;
 import com.customersupport.repositories.TicketRepository;
 import com.customersupport.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-
 @Service
 public class TicketService {
 
@@ -111,10 +109,7 @@ public class TicketService {
 
     public TicketResponse getById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() ->
-                        new NoSuchElementException(
-                                "Record does't exist ID " + id
-                        )
+                .orElseThrow(()-> new ResourceNotFoundException("Ticket Not Found with this id"+id)
                 );
 
         return toResponse(ticket);
@@ -130,10 +125,7 @@ public class TicketService {
 
     public TicketResponse updateTicket(TicketRequest ticketRequest, Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() ->
-                        new NoSuchElementException(
-                                "Record does't exist ID " + id
-                        )
+                .orElseThrow(()-> new ResourceNotFoundException("Ticket Not Found with this id"+id)
                 );
 
         ticket.setTitle(ticketRequest.getTitle());

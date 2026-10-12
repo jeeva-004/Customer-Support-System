@@ -4,6 +4,7 @@ import com.customersupport.dto.UserRequest;
 import com.customersupport.dto.UserResponse;
 import com.customersupport.entities.User;
 import com.customersupport.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,12 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponse createUser(@RequestBody UserRequest user){
+    public UserResponse createUser(@Valid @RequestBody UserRequest user){
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public UserResponse updateUser(@RequestBody UserRequest newUser, @PathVariable Long id){
+    public UserResponse updateUser(@Valid @RequestBody UserRequest newUser, @PathVariable Long id){
         return userService.updateUser(newUser, id);
     }
 

@@ -4,6 +4,7 @@ import com.customersupport.dto.TicketRequest;
 import com.customersupport.dto.TicketResponse;
 import com.customersupport.entities.Ticket;
 import com.customersupport.services.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,12 @@ public class TicketController {
     }
 
     @PostMapping
-    public TicketResponse createTicket(@RequestBody TicketRequest ticket){
+    public TicketResponse createTicket(@Valid @RequestBody TicketRequest ticket){
         return ticketService.createTicket(ticket);
     }
 
     @PutMapping("/{id}")
-    public TicketResponse updateTicket(@RequestBody TicketRequest ticket, @PathVariable Long id){
+    public TicketResponse updateTicket(@Valid @RequestBody TicketRequest ticket, @PathVariable Long id){
         return ticketService.updateTicket(ticket, id);
     }
 

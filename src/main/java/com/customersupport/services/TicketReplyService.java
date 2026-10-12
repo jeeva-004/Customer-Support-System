@@ -3,6 +3,7 @@ package com.customersupport.services;
 import com.customersupport.dto.TicketReplyRequest;
 import com.customersupport.dto.TicketReplyResponse;
 import com.customersupport.entities.TicketReply;
+import com.customersupport.exceptions.ResourceNotFoundException;
 import com.customersupport.repositories.TicketReplyRepository;
 import com.customersupport.repositories.TicketRepository;
 import com.customersupport.repositories.UserRepository;
@@ -60,7 +61,7 @@ public class TicketReplyService {
 
     public TicketReplyResponse getById(Long id){
         TicketReply response = ticketReplyRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("TicketReply Not Found with this id"+id));
 
         return toResponse(response);
     }
@@ -73,7 +74,7 @@ public class TicketReplyService {
 
     public TicketReplyResponse updateTicketReply(TicketReplyRequest ticketReply, Long id){
         TicketReply tr = ticketReplyRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("TicketReply Not Found with this id"+id));
 
         tr.setMessage(ticketReply.getMessage());
         TicketReply updatedReply = ticketReplyRepository.save(tr);

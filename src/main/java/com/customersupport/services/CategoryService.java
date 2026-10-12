@@ -3,10 +3,10 @@ package com.customersupport.services;
 import com.customersupport.dto.CategoryRequest;
 import com.customersupport.dto.CategoryResponse;
 import com.customersupport.entities.Category;
+import com.customersupport.exceptions.ResourceNotFoundException;
 import com.customersupport.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class CategoryService {
@@ -41,7 +41,7 @@ public class CategoryService {
 
     public CategoryResponse getById(Long id){
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("Category Not Found with this id"+id));
 
         return toResponse(category);
     }
@@ -55,7 +55,7 @@ public class CategoryService {
     public CategoryResponse updateCategory(CategoryRequest c, Long id){
 
         Category category = categoryRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id));
+                .orElseThrow(()-> new ResourceNotFoundException("Category Not Found with this id"+id));
         category.setTitle(c.getTitle());
         category.setDescription(c.getDescription());
 
@@ -65,9 +65,7 @@ public class CategoryService {
     }
 
     public String deleteCategory(Long id){
-        categoryRepository.delete(categoryRepository.findById(id)
-                .orElseThrow(()->new NoSuchElementException("Record does't exist ID "+id)));
-
+        categoryRepository.deleteById(id);
         return "Category Deleted";
     }
 }
