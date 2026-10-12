@@ -87,16 +87,27 @@ public class TicketService {
         ticket.setStatus(TicketStatus.valueOf(ticketRequest.getStatus().toUpperCase()));
         ticket.setPriority(TicketPriority.valueOf(ticketRequest.getPriority().toUpperCase()));
 
-        ticket.setCustomer(
-                userRepository.getReferenceById(ticketRequest.getCustomerId())
-        );
+        if (ticketRequest.getCustomerId() != null) {
+            userRepository.getReferenceById(ticketRequest.getCustomerId());
+        } else {
+            ticketRequest.setCustomerId(null);
+        }
 
-        ticket.setCategory(
-                categoryRepository.getReferenceById(ticketRequest.getCategoryId())
-        );
+        if (ticketRequest.getCategoryId() != null) {
+            categoryRepository.getReferenceById(ticketRequest.getCategoryId());
+        } else {
+            ticketRequest.setCategoryId(null);
+        }
 
-        ticket.setAssignedAgent(userRepository.getReferenceById(ticketRequest.getAssignedAgentId()));
-
+        if (ticketRequest.getAssignedAgentId() != null) {
+            ticket.setAssignedAgent(
+                    userRepository.getReferenceById(
+                            ticketRequest.getAssignedAgentId()
+                    )
+            );
+        } else {
+            ticket.setAssignedAgent(null);
+        }
         return ticket;
     }
 
@@ -167,4 +178,58 @@ public class TicketService {
 
         return "Ticket Deleted";
     }
+
+    public List<TicketResponse> getByCustomerId(Long customerId) {
+        return ticketRepository.findByCustomer_Id(customerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getByAssignedAgentId(Long agentId) {
+        return ticketRepository.findByAssignedAgent_Id(agentId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getByStatus(TicketStatus status) {
+        return ticketRepository.findByStatus(status)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getByPriority(TicketPriority priority) {
+        return ticketRepository.findByPriority(priority)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getByCategoryId(Long categoryId) {
+        return ticketRepository.findByCategory_Id(categoryId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getCustomerTicketsByStatus(
+            Long customerId, TicketStatus status) {
+
+        return ticketRepository.findByCustomer_IdAndStatus(customerId, status)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<TicketResponse> getAgentTicketsByStatus(
+            Long agentId, TicketStatus status) {
+
+        return ticketRepository.findByAssignedAgent_IdAndStatus(agentId, status)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
 }

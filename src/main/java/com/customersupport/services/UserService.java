@@ -6,18 +6,24 @@ import com.customersupport.entities.User;
 import com.customersupport.enums.Role;
 import com.customersupport.exceptions.ResourceNotFoundException;
 import com.customersupport.repositories.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    UserService(UserRepository userRepository){
+    UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
+
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     private UserResponse toResponse(User user){
         UserResponse response = new UserResponse();
@@ -34,8 +40,8 @@ public class UserService {
     private User toUser(UserRequest user){
         User userEntity = new User();
         userEntity.setName(user.getName());
-        userEntity.setPassword(user.getPassword());
-        userEntity.setEmail(user.getPassword());
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEntity.setEmail(user.getEmail());
         userEntity.setRole(Role.valueOf(user.getRole().toUpperCase()));
         return userEntity;
     }
@@ -65,7 +71,7 @@ public class UserService {
         user.setName(newUser.getName());
         user.setRole(Role.valueOf(newUser.getRole().toUpperCase()));
         user.setEmail(newUser.getEmail());
-        user.setPassword(newUser.getPassword());
+        user.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
         User updatedUser = userRepository.save(user);
 
@@ -75,6 +81,19 @@ public class UserService {
     public String deleteUser(Long id){
         userRepository.deleteById(id);
         return "User Deleted";
+    }
+
+    public UserResponse getByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User Not Found with email: " + email));
+
+        return toResponse(user);
+    }
+
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 }

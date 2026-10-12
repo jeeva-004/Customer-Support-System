@@ -44,4 +44,14 @@ public class UserController {
 
         return "User Deleted";
     }
+
+    @GetMapping("/email/{email}")
+    public UserResponse getByEmail(@PathVariable String email) {
+        return userService.getByEmail(email);
+    }
+
+    @GetMapping("/exists")
+    public boolean emailExists(@RequestParam String email) {
+        return userService.emailExists(email);
+    }
 }

@@ -45,4 +45,10 @@ public class TicketReplyController {
 
         return "Ticket Reply Deleted";
     }
+
+    @GetMapping("/ticket/{ticketId}")
+    public List<TicketReplyResponse> getByTicketId(
+            @PathVariable Long ticketId) {
+        return ticketReplyService.getByTicketId(ticketId);
+    }
 }

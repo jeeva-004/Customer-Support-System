@@ -85,4 +85,12 @@ public class TicketReplyService {
         ticketReplyRepository.deleteById(id);
         return "Ticket Reply Deleted";
     }
+
+    public List<TicketReplyResponse> getByTicketId(Long ticketId) {
+        return ticketReplyRepository
+                .findByTicket_IdOrderByCreatedAtAsc(ticketId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }
